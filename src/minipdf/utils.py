@@ -91,6 +91,10 @@ def split_pdf(input_path : Path, output_dir : Path) -> List[Path]:
 
 
 def encrypt_pdf(input_path : Path, output_path : Path, user_password : str, owner_password : str | None = None) -> None:
+    """
+    Encrypt a PDF file using the password provided
+    An owner password can be optionally passed in
+    """
     if not validate_pdf_no_encryption_check(input_path):
         raise ValueError(f"Invalid file: {input_path}")
     
@@ -111,6 +115,10 @@ def encrypt_pdf(input_path : Path, output_path : Path, user_password : str, owne
 
 
 def decrypt_pdf(input_path : Path, output_path : Path, password : str) -> bool:
+    """
+    Decrypt a PDF file using the provided password
+    Returns true if the User Password is decoded, False if the Owner Password is decoded (only for internal use)
+    """
     if not validate_pdf_no_encryption_check(input_path):
         raise ValueError(f"Invalid file: {input_path}")
     
