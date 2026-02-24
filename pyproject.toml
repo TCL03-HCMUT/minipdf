@@ -5,7 +5,8 @@ dependencies = [
     "typer",
     "pypdf",
     "rich",
-    "cryptography>=3.1"
+    "cryptography>=3.1",
+    "pymupdf"
 ]
 
 [project.scripts]

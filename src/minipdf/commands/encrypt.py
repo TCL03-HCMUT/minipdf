@@ -16,7 +16,7 @@ def encrypt(
         "encrypted.pdf", "--output", "-o", help="Filename for the encrypted PDF"
     ),
     password: str = typer.Option(
-        None, "--password", "-p", help="Password to encrypt the PDF with"
+        None, "--password", "-p", help="Password to encrypt the PDF with (prompted if none is provided)"
     ),
     owner_password: str = typer.Option(
         None,
@@ -26,7 +26,7 @@ def encrypt(
     ),
 ):
     """
-    Encrypt a PDF file with a password.
+    Encrypt a PDF file with a password
     """
     if password is None:
         password = typer.prompt("Password", hide_input=True)

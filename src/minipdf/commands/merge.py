@@ -24,7 +24,7 @@ def merge(
     ),
 ):
     """
-    Merge multiple PDF files into a single document.
+    Merge multiple PDF files into a single document
     """
     if len(files) < 2:
         console.print("[yellow]Warning:[/yellow] You need at least 2 files to merge.")

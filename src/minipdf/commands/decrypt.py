@@ -13,15 +13,15 @@ def decrypt(
         ..., help="PDF file to decrypt", exists=True, file_okay=True, dir_okay=False
     ),
     output: Path = typer.Option(
-        "encrypted.pdf", "--output", "-o", help="Filename for the decrypted PDF"
+        "decrypted.pdf", "--output", "-o", help="Filename for the decrypted PDF"
     ),
     password: str = typer.Option(
-        None, "--password", "-p", help="Password to decrypt the PDF with"
+        None, "--password", "-p", help="Password to decrypt the PDF with (prompted if none is provided)"
     ),
 ):
     """
-    Decrypt a PDF file with a password.
-    Show if decrypted password is user or owner.
+    Decrypt a PDF file with a password
+    Show if decrypted password is user or owner
     """
     if password is None:
         password = typer.prompt("Password", hide_input=True)

@@ -4,6 +4,7 @@ from typing import List, Optional
 from pypdf import PdfWriter, PdfReader
 from pypdf.errors import PdfReadError
 from pypdf import PasswordType
+import fitz
 
 
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
@@ -144,3 +145,17 @@ def decrypt_pdf(input_path: Path, output_path: Path, password: str) -> bool:
     reader.close()
 
     return status == PasswordType.USER_PASSWORD
+
+
+def compress_pdf(input_path: Path, output_path: Path, compress_duplicates: bool = True, level: int = -1) -> None:
+    """
+    Compress a PDF file while retaining quality
+    """
+    if not validate_pdf(input_path):
+        raise ValueError(f"Invalid/encrypted file: {input_path}")
+
+    doc = fitz.open(input_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    doc.save(output_path, garbage=4, deflate=True, clean=True)
+    doc.close()

@@ -2,7 +2,6 @@ from minipdf.utils import split_pdf
 
 import typer
 from pathlib import Path
-from typing import List
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
@@ -13,8 +12,8 @@ def split(
     input: Path = typer.Argument(
         ..., help="PDF file to split", exists=True, file_okay=True, dir_okay=False
     ),
-    output: Path = typer.Argument(
-        ..., help="Directory of output", file_okay=False, dir_okay=True
+    output: Path = typer.Option(
+        "./", "--output-dir", "-o", help="Directory of output", file_okay=False, dir_okay=True
     ),
 ):
     """
