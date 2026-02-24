@@ -147,15 +147,36 @@ def decrypt_pdf(input_path: Path, output_path: Path, password: str) -> bool:
     return status == PasswordType.USER_PASSWORD
 
 
-def compress_pdf(input_path: Path, output_path: Path, compress_duplicates: bool = True, level: int = -1) -> None:
+def compress_pdf(
+    input_path: Path,
+    output_path: Path,
+    compress_duplicates: bool = True,
+    level: int = -1,
+    reduce_image: bool = False,
+    quality: int = 80,
+) -> None:
     """
     Compress a PDF file while retaining quality
     """
     if not validate_pdf(input_path):
         raise ValueError(f"Invalid/encrypted file: {input_path}")
 
-    doc = fitz.open(input_path)
+    writer = PdfWriter(clone_from=input_path)
+
+    if compress_duplicates:
+        writer.compress_identical_objects(remove_identicals=True, remove_orphans=True)
+
+    if reduce_image:
+        for page in writer.pages:
+            for img in page.images:
+                img.replace(img.image, quality=quality)
+
+    for page in writer.pages:
+        page.compress_content_streams(level=level)  # This is CPU intensive
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    doc.save(output_path, garbage=4, deflate=True, clean=True)
-    doc.close()
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+    writer.close()

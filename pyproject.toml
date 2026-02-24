@@ -6,7 +6,8 @@ dependencies = [
     "pypdf",
     "rich",
     "cryptography>=3.1",
-    "pymupdf"
+    "pymupdf",
+    "pillow"
 ]
 
 [project.scripts]
