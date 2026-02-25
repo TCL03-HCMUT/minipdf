@@ -1,11 +1,9 @@
-import sys
+import sys, pymupdf, fitz
 from pathlib import Path
 from typing import List, Optional
 from pypdf import PdfWriter, PdfReader
 from pypdf.errors import PdfReadError
 from pypdf import PasswordType
-import fitz
-
 
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
     """Check if a file exists and if it's valid (not including encryption check)"""
@@ -156,11 +154,13 @@ def compress_pdf(
     quality: int = 80,
 ) -> None:
     """
-    Compress a PDF file while retaining quality
+    Compress a PDF file
+    Returns a tuple consiting of the file size before and after compression (in bytes)
     """
+    # FIXME: Use a different compression algorithm
     if not validate_pdf(input_path):
         raise ValueError(f"Invalid/encrypted file: {input_path}")
-
+    
     writer = PdfWriter(clone_from=input_path)
 
     if compress_duplicates:
@@ -180,3 +180,32 @@ def compress_pdf(
         writer.write(f)
 
     writer.close()
+
+
+def extract_text(
+    input_path: Path,
+    output_path: Path,
+    html: bool = False
+):
+    """
+    Extract text from PDF file to a txt/HTML file
+    """
+    if not validate_pdf(input_path):
+        raise ValueError(f"Invalid/encrypted file: {input_path}")
+    
+    if not html:
+        with pymupdf.open(input_path) as doc:
+            text = chr(12).join([page.get_text() for page in doc]) #type:ignore
+        
+        Path(output_path).write_bytes(text.encode())
+    else:
+        doc = fitz.open(input_path)
+        html_content = ""
+
+        for page in doc:
+            html_content += page.get_text("html") #type:ignore
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        
+        doc.close()

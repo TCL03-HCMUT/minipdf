@@ -21,7 +21,6 @@ def decrypt(
 ):
     """
     Decrypt a PDF file with a password
-    Show if decrypted password is user or owner
     """
     if password is None:
         password = typer.prompt("Password", hide_input=True)
