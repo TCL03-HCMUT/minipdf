@@ -1,9 +1,10 @@
-import sys, pymupdf, fitz
+import sys, pymupdf, io
 from pathlib import Path
 from typing import List, Optional
 from pypdf import PdfWriter, PdfReader
 from pypdf.errors import PdfReadError
 from pypdf import PasswordType
+from PIL import Image
 
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
     """Check if a file exists and if it's valid (not including encryption check)"""
@@ -28,6 +29,11 @@ def validate_pdf(file_path: Path) -> bool:
     is_encrypted = reader.is_encrypted
     reader.close()
     return not is_encrypted
+
+
+def validate(file_path: Path):
+    if not validate_pdf(file_path):
+        raise ValueError(f"Invalid/encrypted file: {file_path}")
 
 
 def merge_pdfs(input_paths: List[Path], output_path: Path) -> None:
@@ -63,8 +69,7 @@ def split_pdf(input_path: Path, output_dir: Path) -> List[Path]:
     Returns a list of file paths.
     """
 
-    if not validate_pdf(input_path):
-        raise ValueError(f"Invalid/encrypted file: {input_path}")
+    validate(input_path)
 
     reader = PdfReader(input_path)
     created_files = []
@@ -75,7 +80,7 @@ def split_pdf(input_path: Path, output_dir: Path) -> List[Path]:
         writer = PdfWriter()
         writer.add_page(page)
 
-        filename = output_dir / f"{input_path.name}_page_{i + 1}.pdf"
+        filename = output_dir / f"{input_path.stem}_page_{i + 1}.pdf"
 
         with open(filename, "wb") as f:
             writer.write(f)
@@ -98,8 +103,7 @@ def encrypt_pdf(
     Encrypt a PDF file using the password provided
     An owner password can be optionally passed in
     """
-    if not validate_pdf_no_encryption_check(input_path):
-        raise ValueError(f"Invalid file: {input_path}")
+    validate(input_path)
 
     reader = PdfReader(input_path)
     writer = PdfWriter(clone_from=reader)
@@ -122,8 +126,7 @@ def decrypt_pdf(input_path: Path, output_path: Path, password: str) -> bool:
     Decrypt a PDF file using the provided password
     Returns true if the User Password is decoded, False if the Owner Password is decoded (only for internal use)
     """
-    if not validate_pdf_no_encryption_check(input_path):
-        raise ValueError(f"Invalid file: {input_path}")
+    validate(input_path)
 
     reader = PdfReader(input_path)
 
@@ -158,8 +161,7 @@ def compress_pdf(
     Returns a tuple consiting of the file size before and after compression (in bytes)
     """
     # FIXME: Use a different compression algorithm
-    if not validate_pdf(input_path):
-        raise ValueError(f"Invalid/encrypted file: {input_path}")
+    validate(input_path)
     
     writer = PdfWriter(clone_from=input_path)
 
@@ -190,22 +192,56 @@ def extract_text(
     """
     Extract text from PDF file to a txt/HTML file
     """
-    if not validate_pdf(input_path):
-        raise ValueError(f"Invalid/encrypted file: {input_path}")
+    validate(input_path)
     
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     if not html:
         with pymupdf.open(input_path) as doc:
             text = chr(12).join([page.get_text() for page in doc]) #type:ignore
         
         Path(output_path).write_bytes(text.encode())
     else:
-        doc = fitz.open(input_path)
-        html_content = ""
-
-        for page in doc:
-            html_content += page.get_text("html") #type:ignore
+        with pymupdf.open(input_path) as doc:
+            html_content = "".join(page.get_text("html") for page in doc) #type:ignore
 
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(html_content)
-        
-        doc.close()
+
+
+def convert2image(
+    input_path: Path,
+    output_dir: Path,
+    format: str = "png"
+):
+    """
+    Convert a PDF file to a list of images, one for each page
+    If the GIF format is used, one GIF file is proudced instead, with each page as one frame
+    """
+    validate(input_path)
+
+    
+    format = format.lower()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    with pymupdf.open(input_path) as doc:
+        if format != "gif":
+            for i, page in enumerate(doc):
+                pix = page.get_pixmap()  # Render page to an image
+                pix.save(output_dir / f"{input_path.name}_page_{i}.{format}")
+        else:
+            images = []
+            for page in doc:
+                pix = page.get_pixmap(matrix=pymupdf.Matrix(2, 2)) # Higher res
+                img_bytes = pix.tobytes("png")
+                images.append(Image.open(io.BytesIO(img_bytes)))
+                
+            # 2. Save pages as an animated GIF
+            if images:
+                images[0].save(
+                    output_dir / f"{input_path.stem}.gif",
+                    save_all=True,
+                    append_images=images[1:],
+                    duration=1000, # Duration of each frame in ms
+                    loop=0         # 0 means infinite loop
+                )
