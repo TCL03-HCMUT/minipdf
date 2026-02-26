@@ -35,7 +35,7 @@ def decrypt(
         progress.add_task(description="Decrypting PDF...", total=None)
 
         try:
-            user_pw_status = decrypt_pdf(input, output, password)
+            auth_status = decrypt_pdf(input, output, password)
         except Exception as e:
             error = e
 
@@ -43,6 +43,17 @@ def decrypt(
         console.print(f"[bold red]Error:[/bold red] {error}")
         raise typer.Exit(code=1)
 
+    match auth_status:
+        case 1:
+            status = "No password required"
+        case 2:
+            status = "Authenticated with the [bold green]user[/bold green] password"
+        case 4:
+            status = "Authenticated with the [bold green]owner[/bold green] password"
+        case 6:
+            status = "Authenticated, both [bold green]user[/bold green] and [bold green]owner[/bold green] passwords are equal"
+
     console.print(
-        f"[bold green]Success![/bold green] Decrypted [cyan]{input}[/cyan] ({"User" if user_pw_status else "Owner"} Password) to [cyan]{output}[/cyan]"
+        f"[bold green]Success![/bold green] Decrypted [cyan]{input}[/cyan] to [cyan]{output}[/cyan] ({status})"
     )
+    

@@ -3,7 +3,6 @@ name = "minipdf"
 version = "0.1.0"
 dependencies = [
     "typer",
-    "pypdf",
     "rich",
     "cryptography>=3.1",
     "pymupdf",

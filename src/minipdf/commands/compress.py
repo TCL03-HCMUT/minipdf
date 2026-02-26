@@ -35,34 +35,6 @@ def compress(
     ),
     output: Path = typer.Option(
         "compressed.pdf", "--output", "-o", help="Filename for the compressed PDF"
-    ),
-    level: int = typer.Option(
-        -1, 
-        "--level", 
-        min=-1, 
-        max=9, 
-        help=
-        """
-            Compression level: [0=None, 9=Max, -1=Standard]\n
-            Higher values offer better compression but take more time
-        """
-    ),
-    duplicate: bool = typer.Option(
-        True, help="Whether to optimize duplicated elements (defaults to True)"
-    ),
-    lossy: bool = typer.Option(
-        False, help="Whether to reduce quality of images"
-    ),
-    quality: int = typer.Option(
-        80, "--quality", "-q", 
-        min = 0,
-        max = 100,
-        callback=validate_quality,
-        help=
-        """
-            Quality of images [0=Lowest, 100=Highest]\n
-            Lower value offer better compression but with worse quality
-        """
     )
 ):
     """
@@ -80,7 +52,7 @@ def compress(
 
         try:
             before = os.path.getsize(input)
-            compress_pdf(input, output, duplicate, level, lossy, quality)
+            compress_pdf(input, output)
             after = os.path.getsize(output)
         except Exception as e:
             error = e
