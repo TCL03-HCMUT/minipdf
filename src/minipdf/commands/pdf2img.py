@@ -44,4 +44,4 @@ def pdf2img(
         console.print(f"[bold red]Error:[/bold red] {error}")
         raise typer.Exit(code=1)
 
-    console.print(f"[bold green]Success![/bold green] PDF file has been converted into images")
+    console.print(f"[bold green]Success![/bold green] PDF file has been converted")
