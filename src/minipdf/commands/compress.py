@@ -30,11 +30,11 @@ def format_bytes(b, factor=1024, suffix="B"):
 
 
 def compress(
-    input: Path = typer.Argument(
+    input_file: Path = typer.Argument(
         ..., help="PDF file to compess", exists=True, file_okay=True, dir_okay=False
     ),
-    output: Path = typer.Option(
-        "compressed.pdf", "--output", "-o", help="Filename for the compressed PDF"
+    output_file: Path = typer.Option(
+        "compressed.pdf", "--output", "-o", help="Filename for the compressed PDF", file_okay=True, dir_okay=False
     )
 ):
     """
@@ -51,9 +51,9 @@ def compress(
         progress.add_task(description="Compressing PDF...", total=None)
 
         try:
-            before = os.path.getsize(input)
-            compress_pdf(input, output)
-            after = os.path.getsize(output)
+            before = os.path.getsize(input_file)
+            compress_pdf(input_file, output_file)
+            after = os.path.getsize(output_file)
         except Exception as e:
             error = e
 
@@ -62,5 +62,5 @@ def compress(
         raise typer.Exit(code=1)
 
     console.print(
-        f"[bold green]Success![/bold green] Compressed [cyan]{input}[/cyan] ([red]{format_bytes(before)}[/red]) to [cyan]{output}[/cyan] ([green]{format_bytes(after)}[/green])"
+        f"[bold green]Success![/bold green] Compressed [cyan]{input_file}[/cyan] ([red]{format_bytes(before)}[/red]) to [cyan]{output_file}[/cyan] ([green]{format_bytes(after)}[/green])"
     )

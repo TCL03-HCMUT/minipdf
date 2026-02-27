@@ -9,11 +9,11 @@ console = Console()
 
 
 def encrypt(
-    input: Path = typer.Argument(
+    input_file: Path = typer.Argument(
         ..., help="PDF file to encrypt", exists=True, file_okay=True, dir_okay=False
     ),
-    output: Path = typer.Option(
-        "encrypted.pdf", "--output", "-o", help="Filename for the encrypted PDF"
+    output_file: Path = typer.Option(
+        "encrypted.pdf", "--output", "-o", help="Filename for the encrypted PDF", file_okay=True, dir_okay=False
     ),
     password: str = typer.Option(
         None, "--password", "-p", help="Password to encrypt the PDF with (prompted if none is provided)"
@@ -41,7 +41,7 @@ def encrypt(
         progress.add_task(description="Encrypting PDF...", total=None)
 
         try:
-            encrypt_pdf(input, output, password, owner_password)
+            encrypt_pdf(input_file, output_file, password, owner_password)
         except Exception as e:
             error = e
 
@@ -50,5 +50,5 @@ def encrypt(
         raise typer.Exit(code=1)
 
     console.print(
-        f"[bold green]Success![/bold green] Encrypted [cyan]{input}[/cyan] to [cyan]{output}[/cyan]"
+        f"[bold green]Success![/bold green] Encrypted [cyan]{input_file}[/cyan] to [cyan]{output_file}[/cyan]"
     )

@@ -9,10 +9,10 @@ console = Console()
 
 
 def split(
-    input: Path = typer.Argument(
+    input_file: Path = typer.Argument(
         ..., help="PDF file to split", exists=True, file_okay=True, dir_okay=False
     ),
-    output: Path = typer.Option(
+    output_dir: Path = typer.Option(
         "./", "--output-dir", "-o", help="Directory of output", file_okay=False, dir_okay=True
     ),
 ):
@@ -30,7 +30,7 @@ def split(
         progress.add_task(description="Splitting PDF...", total=None)
 
         try:
-            paths = split_pdf(input, output)
+            paths = split_pdf(input_file, output_dir)
         except Exception as e:
             error = e
 

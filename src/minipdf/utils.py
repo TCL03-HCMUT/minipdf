@@ -92,10 +92,10 @@ def encrypt_pdf(
         output_path.parent.mkdir(parents=True, exist_ok=True)
         doc.save(
             output_path,
-            encryption=pymupdf.PDF_ENCRYPT_AES_256,
+            encryption=pymupdf.PDF_ENCRYPT_AES_256, #type:ignore
             user_pw=user_password,
             owner_pw=owner_password if owner_password else user_password,
-            permissions=pymupdf.PDF_PERM_ACCESSIBILITY,
+            permissions=pymupdf.PDF_PERM_ACCESSIBILITY, #type:ignore
         )
 
 
@@ -156,7 +156,7 @@ def extract_text(input_path: Path, output_path: Path, html: bool = False):
             f.write(html_content)
 
 
-def convert2image(input_path: Path, output_dir: Path, format: str = "png"):
+def pdf2image(input_path: Path, output_dir: Path, format: str = "png"):
     """
     Convert a PDF file to a list of images, one for each page
     If the GIF format is used, one GIF file is proudced instead, with each page as one frame
@@ -167,7 +167,7 @@ def convert2image(input_path: Path, output_dir: Path, format: str = "png"):
 
     with pymupdf.open(input_path) as doc:
         if format != "gif":
-            for i, page in enumerate(doc):
+            for i, page in enumerate(doc): #type:ignore
                 pix = page.get_pixmap()  # Render page to an image
                 pix.save(output_dir / f"{input_path.name}_page_{i}.{format}")
         else:
@@ -185,3 +185,15 @@ def convert2image(input_path: Path, output_dir: Path, format: str = "png"):
                     duration=1000,  # Duration of each frame in ms
                     loop=0,  # 0 means infinite loop
                 )
+
+
+def image2pdf(input_images: List[Path], output_path: Path):
+    """
+    Convert a list of images into a PDF file (in order)
+    """
+
+    images = [Image.open(input_image).convert("RGB") for input_image in input_images]
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    images[0].save(output_path, save_all=True, append_images=images[1:])

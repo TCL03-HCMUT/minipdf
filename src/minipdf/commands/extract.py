@@ -8,12 +8,12 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 console = Console()
 
 def extract(
-    input: Path = typer.Argument(
+    input_file: Path = typer.Argument(
         ..., help="PDF file to extract text from", exists=True, file_okay=True, dir_okay=False
     ),
-    output: Path = typer.Option(
+    output_file: Path = typer.Option(
         None, "--output", "-o", help="Filename for the output file",
-        show_default="output.html if --html, else output.txt"
+        show_default="output.html if --html, else output.txt", file_okay=True, dir_okay=False
     ),
     html: bool = typer.Option(
         False, help="Whether to extract as HTML format"
@@ -24,11 +24,11 @@ def extract(
 
     WARNING: Results can be visually unappealing
     """
-    if output is None:
+    if output_file is None:
         if html:
-            output = Path("output.html")
+            output_file = Path("output.html")
         else:
-            output = Path("output.txt")
+            output_file = Path("output.txt")
     
 
     error = None
@@ -41,7 +41,7 @@ def extract(
         progress.add_task(description="Extracting text...", total=None)
 
         try:
-            extract_text(input, output, html)
+            extract_text(input_file, output_file, html)
         except Exception as e:
             error = e
 
@@ -50,5 +50,5 @@ def extract(
         raise typer.Exit(code=1)
 
     console.print(
-        f"[bold green]Success![/bold green] Extracted from [cyan]{input}[/cyan] to [cyan]{output}[/cyan]"
+        f"[bold green]Success![/bold green] Extracted from [cyan]{input_file}[/cyan] to [cyan]{output_file}[/cyan]"
     )

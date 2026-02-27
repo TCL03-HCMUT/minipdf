@@ -9,11 +9,11 @@ console = Console()
 
 
 def decrypt(
-    input: Path = typer.Argument(
+    input_file: Path = typer.Argument(
         ..., help="PDF file to decrypt", exists=True, file_okay=True, dir_okay=False
     ),
-    output: Path = typer.Option(
-        "decrypted.pdf", "--output", "-o", help="Filename for the decrypted PDF"
+    output_file: Path = typer.Option(
+        "decrypted.pdf", "--output", "-o", help="Filename for the decrypted PDF", file_okay=True, dir_okay=False
     ),
     password: str = typer.Option(
         None, "--password", "-p", help="Password to decrypt the PDF with (prompted if none is provided)"
@@ -35,7 +35,7 @@ def decrypt(
         progress.add_task(description="Decrypting PDF...", total=None)
 
         try:
-            auth_status = decrypt_pdf(input, output, password)
+            auth_status = decrypt_pdf(input_file, output_file, password)
         except Exception as e:
             error = e
 
@@ -54,6 +54,6 @@ def decrypt(
             status = "Authenticated, both [bold green]user[/bold green] and [bold green]owner[/bold green] passwords are equal"
 
     console.print(
-        f"[bold green]Success![/bold green] Decrypted [cyan]{input}[/cyan] to [cyan]{output}[/cyan] ({status})"
+        f"[bold green]Success![/bold green] Decrypted [cyan]{input_file}[/cyan] to [cyan]{output_file}[/cyan] ({status})"
     )
     
