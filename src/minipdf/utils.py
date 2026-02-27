@@ -163,7 +163,6 @@ def convert2image(input_path: Path, output_dir: Path, format: str = "png"):
     """
     validate(input_path)
 
-    format = format.lower()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with pymupdf.open(input_path) as doc:

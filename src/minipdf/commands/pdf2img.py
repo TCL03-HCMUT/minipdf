@@ -36,7 +36,7 @@ def pdf2img(
         progress.add_task(description="Converting PDF...", total=None)
 
         try:
-            convert2image(input, output, format)
+            convert2image(input, output, format.strip().lower())
         except Exception as e:
             error = e
 
@@ -44,4 +44,4 @@ def pdf2img(
         console.print(f"[bold red]Error:[/bold red] {error}")
         raise typer.Exit(code=1)
 
-    console.print(f"[bold green]Success![/bold green] PDF file has been converted")
+    console.print(f"[bold green]Success![/bold green] PDF file has been converted into {"GIF" if format.lower().strip() == "gif" else "images"}")
