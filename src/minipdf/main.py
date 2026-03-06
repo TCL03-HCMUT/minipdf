@@ -6,6 +6,7 @@ from minipdf.commands.encrypt import encrypt
 from minipdf.commands.decrypt import decrypt
 from minipdf.commands.compress import compress
 from minipdf.commands.extract import extract
+from minipdf.commands.rotate import rotate
 from minipdf.commands.pdf2img import pdf2img
 from minipdf.commands.img2pdf import img2pdf
 from minipdf.commands.office2pdf import office2pdf
@@ -18,6 +19,7 @@ app.command()(encrypt)
 app.command()(decrypt)
 app.command()(compress)
 app.command()(extract)
+app.command()(rotate)
 app.command()(pdf2img)
 app.command()(img2pdf)
 app.command()(office2pdf)

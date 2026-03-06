@@ -23,7 +23,7 @@ def encrypt(
         "--owner-password",
         "-op",
         help="Owner password (optional for document permissions)",
-    ),
+    )
 ):
     """
     Encrypt a PDF file with a password

@@ -13,11 +13,11 @@ console = Console()
 def merge(
     input_files: List[Path] = typer.Argument(
         ...,
-        help="List of PDF files to merge (in order)", exists=True, file_okay=True, dir_okay=False,
+        help="List of PDF files to merge (in order)", exists=True, file_okay=True, dir_okay=False, metavar="FILES"
     ),
     output_file: Path = typer.Option(
         "merged.pdf", "--output", "-o", help="The filename for the resulting PDF", file_okay=True, dir_okay=False
-    ),
+    )
 ):
     """
     Merge multiple PDF files into a single document

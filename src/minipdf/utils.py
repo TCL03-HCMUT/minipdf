@@ -50,7 +50,7 @@ def merge_pdfs(input_paths: List[Path], output_path: Path) -> None:
 
     if len(result) > 0:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        result.save(output_path)
+        result.save(output_path, garbage=4, deflate=True, clean=True)
 
     result.close()
 
@@ -69,7 +69,7 @@ def split_pdf(input_path: Path, output_dir: Path) -> List[Path]:
             doc_page.insert_pdf(src, from_page=page_num, to_page=page_num)
 
             filename = output_dir / f"{input_path.stem}_page_{page_num + 1}.pdf"
-            doc_page.save(filename)
+            doc_page.save(filename, garbage=4, deflate=True, clean=True)
             doc_page.close()
             created_files.append(filename)
 
@@ -114,7 +114,7 @@ def decrypt_pdf(input_path: Path, output_path: Path, password: str) -> int:
                 raise RuntimeError("Incorrect password!")
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        doc.save(output_path)
+        doc.save(output_path, garbage=4, deflate=True, clean=True)
 
         # Returns True if authenticated as user, False otherwise
         return auth_status
@@ -130,6 +130,31 @@ def compress_pdf(
     validate(input_path)
 
     with pymupdf.open(input_path) as doc:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        doc.save(output_path, garbage=4, deflate=True, clean=True)
+
+
+def rotate_pdf(
+    input_path: Path,
+    output_path: Path,
+    angle: int = 90, 
+    pages: List[int] | None = None
+):
+    """
+    Rotate a PDF file by an angle that is a multiple of 90
+    If a list of pages is passed, only those pages are rotated
+    """
+    validate(input_path)
+
+    with pymupdf.open(input_path) as doc:
+        if pages is None:
+            for page in doc:
+                new_rotation = (page.rotation + angle) % 360
+                page.set_rotation(new_rotation)
+        else:
+            for page in pages:
+                new_rotation = (doc[page - 1].rotation + angle) % 360
+                doc[page - 1].set_rotation(new_rotation)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         doc.save(output_path, garbage=4, deflate=True, clean=True)
 
@@ -209,5 +234,4 @@ def office_to_pdf(input_files: List[Path], output_dir: Path):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for file in input_files:
-        # print(file.resolve().as_posix())
         msoffice2pdf.convert(source=str(file.resolve()), output_dir=str(output_dir.resolve()))

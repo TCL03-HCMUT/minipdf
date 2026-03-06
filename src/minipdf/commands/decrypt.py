@@ -17,7 +17,7 @@ def decrypt(
     ),
     password: str = typer.Option(
         None, "--password", "-p", help="Password to decrypt the PDF with (prompted if none is provided)"
-    ),
+    )
 ):
     """
     Decrypt a PDF file with a password

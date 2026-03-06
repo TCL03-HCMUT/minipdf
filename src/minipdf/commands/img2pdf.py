@@ -13,7 +13,7 @@ console = Console()
 def img2pdf(
     input_files: List[Path] = typer.Argument(
         ...,
-        help="List of image files to convert (in order)", exists=True, file_okay=True, dir_okay=False,
+        help="List of image files to convert (in order)", exists=True, file_okay=True, dir_okay=False, metavar="FILES"
     ),
     output_file: Path = typer.Option(
         "images_merged.pdf", "--output", "-o", help="Filename of resulting PDF file", file_okay=True, dir_okay=False
