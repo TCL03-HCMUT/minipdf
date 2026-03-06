@@ -13,7 +13,7 @@ def split(
         ..., help="PDF file to split", exists=True, file_okay=True, dir_okay=False
     ),
     output_dir: Path = typer.Option(
-        "./", "--output-dir", "-o", help="Directory of output", file_okay=False, dir_okay=True
+        ".", "--output-dir", "-o", help="Directory of output", file_okay=False, dir_okay=True
     ),
 ):
     """

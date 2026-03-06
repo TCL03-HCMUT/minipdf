@@ -1,4 +1,4 @@
-from minipdf.utils import pdf2image
+from minipdf.utils import pdf_to_image
 
 import typer
 from pathlib import Path
@@ -14,7 +14,7 @@ def pdf2img(
         ..., help="PDF file to convert", exists=True, file_okay=True, dir_okay=False
     ),
     output_dir: Path = typer.Option(
-        "./", "--output-dir", help="Directory of output", file_okay=False, dir_okay=True
+        ".", "--output-dir", help="Directory of output", file_okay=False, dir_okay=True
     ),
     format: str = typer.Option(
         "png", "--format", "-f", help="Format of resulting files"
@@ -36,7 +36,7 @@ def pdf2img(
         progress.add_task(description="Converting PDF...", total=None)
 
         try:
-            pdf2image(input_file, output_dir, format.strip().lower())
+            pdf_to_image(input_file, output_dir, format.strip().lower())
         except Exception as e:
             error = e
 

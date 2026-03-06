@@ -1,8 +1,7 @@
-import sys, pymupdf, io
+import sys, pymupdf, io, msoffice2pdf
 from pathlib import Path
 from typing import List, Optional
 from PIL import Image
-
 
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
     """
@@ -156,7 +155,7 @@ def extract_text(input_path: Path, output_path: Path, html: bool = False):
             f.write(html_content)
 
 
-def pdf2image(input_path: Path, output_dir: Path, format: str = "png"):
+def pdf_to_image(input_path: Path, output_dir: Path, format: str = "png"):
     """
     Convert a PDF file to a list of images, one for each page
     If the GIF format is used, one GIF file is proudced instead, with each page as one frame
@@ -187,7 +186,7 @@ def pdf2image(input_path: Path, output_dir: Path, format: str = "png"):
                 )
 
 
-def image2pdf(input_images: List[Path], output_path: Path):
+def image_to_pdf(input_images: List[Path], output_path: Path):
     """
     Convert a list of images into a PDF file (in order)
     """
@@ -197,3 +196,18 @@ def image2pdf(input_images: List[Path], output_path: Path):
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     images[0].save(output_path, save_all=True, append_images=images[1:])
+    for image in images:
+        image.close()
+
+
+def office_to_pdf(input_files: List[Path], output_dir: Path):
+    """
+    Convert a list of files in MS Office format (docx, pptx, xlsx, etc) to a list of PDF files
+    Require MS Office/LibreOffice installed on the system
+    """
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for file in input_files:
+        # print(file.resolve().as_posix())
+        msoffice2pdf.convert(source=str(file.resolve()), output_dir=str(output_dir.resolve()))

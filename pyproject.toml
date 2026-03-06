@@ -1,12 +1,15 @@
 [project]
 name = "minipdf"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
     "typer",
     "rich",
     "cryptography>=3.1",
     "pymupdf",
-    "pillow"
+    "pillow",
+    "pyhtml2pdf",
+    "msoffice2pdf",
+    "comtypes"
 ]
 
 [project.scripts]

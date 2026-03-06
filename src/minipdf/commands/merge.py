@@ -6,7 +6,6 @@ from typing import List
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-# the merge sub‑tool should act as a group with a default action
 
 console = Console()
 
@@ -47,5 +46,5 @@ def merge(
         raise typer.Exit(code=1)
 
     console.print(
-        f"[bold green]Success![/bold green] Merged {len(input_files)} files into [cyan]{output_file}[/cyan]"
+        f"[bold green]Success![/bold green] Merged [cyan]{len(input_files)}[/cyan] files into [cyan]{output_file}[/cyan]"
     )

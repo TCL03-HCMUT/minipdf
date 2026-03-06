@@ -8,6 +8,7 @@ from minipdf.commands.compress import compress
 from minipdf.commands.extract import extract
 from minipdf.commands.pdf2img import pdf2img
 from minipdf.commands.img2pdf import img2pdf
+from minipdf.commands.office2pdf import office2pdf
 
 app = typer.Typer(help="A mini PDF CLI tool")
 
@@ -19,6 +20,7 @@ app.command()(compress)
 app.command()(extract)
 app.command()(pdf2img)
 app.command()(img2pdf)
+app.command()(office2pdf)
 
 if __name__ == "__main__":
     app()
