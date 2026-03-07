@@ -4,7 +4,6 @@ import typer
 from pathlib import Path
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from typing import List, Optional
 
 console = Console()
 
@@ -40,7 +39,9 @@ def rotate(
     )
 ):
     """
-    Rotate a PDF file by an angle that is a multiple of 90. If a list of pages is passed, only those pages are rotated
+    Rotate a PDF file by an angle that is a multiple of 90. Positive angle value indicates clockwise rotation, negative indicates otherwise.
+    
+    If a list of pages is passed, only those pages are rotated.
     """
     error = None
 
@@ -52,7 +53,7 @@ def rotate(
         progress.add_task(description="Rotating PDF...", total=None)
 
         try:
-            rotate_pdf(input_file, output_file, angle, pages)
+            rotate_pdf(input_file, output_file, angle, pages) # type:ignore
         except Exception as e:
             error = e
 

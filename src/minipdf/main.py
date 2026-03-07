@@ -1,5 +1,6 @@
 # src/pdfcli/main.py
 import typer
+from minipdf.commands.metadata import metadata
 from minipdf.commands.merge import merge
 from minipdf.commands.split import split
 from minipdf.commands.encrypt import encrypt
@@ -13,6 +14,7 @@ from minipdf.commands.office2pdf import office2pdf
 
 app = typer.Typer(help="A mini PDF CLI tool")
 
+app.command()(metadata)
 app.command()(merge)
 app.command()(split)
 app.command()(encrypt)

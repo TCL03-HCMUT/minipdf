@@ -1,7 +1,8 @@
-import sys, pymupdf, io, msoffice2pdf
+import sys, pymupdf, io, msoffice2pdf, re
 from pathlib import Path
 from typing import List, Optional
 from PIL import Image
+from datetime import datetime, timezone, timedelta
 
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
     """
@@ -32,6 +33,54 @@ def validate_pdf(file_path: Path) -> bool:
 def validate(file_path: Path):
     if not validate_pdf(file_path):
         raise ValueError(f"Invalid/encrypted file: {file_path}")
+
+
+def convert_pdf_to_local(pdf_date_str):
+    """
+    Parses a PDF date string and converts it to the local system time.
+    """
+    # Regex to capture: YYYY, MM, DD, hh, mm, ss (optional), sign, tz_h, tz_m
+    pattern = r"D:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?([+\-])(\d{2})'(\d{2})'?"
+    match = re.search(pattern, pdf_date_str)
+    
+    if not match:
+        return "Invalid format"
+
+
+    year, month, day, hour, minute, second, sign, tz_h, tz_m = match.groups()
+    
+    sec = int(second) if second else 0
+    
+    offset_mins = int(tz_h) * 60 + int(tz_m)
+    if sign == '-':
+        offset_mins = -offset_mins
+        
+    src_tz = timezone(timedelta(minutes=offset_mins))
+    
+    dt_utc_offset = datetime(int(year), int(month), int(day), 
+                             int(hour), int(minute), sec, tzinfo=src_tz)
+    # Calling .astimezone(None) converts to the system's local timezone
+    dt_local = dt_utc_offset.astimezone(None)
+
+    return dt_local.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+
+
+def show_metadata(input_path: Path):
+    validate_pdf(input_path)
+
+    with pymupdf.open(input_path) as file:
+        result = ""
+        meta = file.metadata
+        if not meta:
+            raise ValueError("No metadata available for this file")
+        for key in meta.keys(): #type:ignore
+            value = meta.get(key) #type:ignore
+            if not value:
+                value = ""
+            
+            result += f"-[bold]{key.title()}[/bold]: {convert_pdf_to_local(value) if key.lower() in ("creationdate", "moddate") else value}\n"
+    return result
 
 
 def merge_pdfs(input_paths: List[Path], output_path: Path) -> None:
