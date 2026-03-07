@@ -8,15 +8,35 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 console = Console()
 
 
+import typer
+
 def validate_pages(value: str):
-    if value is None:
+    if not value:
         return []
     
+    pages = set() # avoid duplicates
+    
     try:
-        # Split, strip, and convert to int
-        return [int(item.strip()) for item in value.split(",")]
+        parts = [item.strip() for item in value.split(",")]
+        
+        for part in parts:
+            if "-" in part:
+                # handling ranges
+                start_str, end_str = part.split("-")
+                start, end = int(start_str), int(end_str)
+                
+                if start > end:
+                    raise typer.BadParameter(f"Invalid range: {part}. Start must be less than end.")
+                
+                # Add all numbers in the range (inclusive)
+                pages.update(range(start, end + 1))
+            else:
+                pages.add(int(part))
+                
+        return sorted(list(pages))
+        
     except ValueError:
-        raise typer.BadParameter("Only comma-separated integers are allowed (e.g., '1,2,3').")
+        raise typer.BadParameter("Format must be integers or ranges (e.g. '1, 3-6, 9')")
 
 
 def rotate(
@@ -34,8 +54,8 @@ def rotate(
         "--pages",
         "-p",
         callback=validate_pages,
-        metavar="INT,INT,...",
-        help="List of comma separated page numbers to rotate",
+        metavar="INT,INT-INT,...",
+        help="List of comma separated page numbers/ranges to rotate (e.g. '1, 3-6, 9')",
     )
 ):
     """

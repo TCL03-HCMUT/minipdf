@@ -4,6 +4,7 @@ from typing import List, Optional
 from PIL import Image
 from datetime import datetime, timezone, timedelta
 
+
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
     """
     Check if a file exists and if it's a valid PDF structure
@@ -39,46 +40,45 @@ def convert_pdf_to_local(pdf_date_str):
     """
     Parses a PDF date string and converts it to the local system time.
     """
-    # Regex to capture: YYYY, MM, DD, hh, mm, ss (optional), sign, tz_h, tz_m
+    # Regex to capture: YYYY, MM, DD, hh, mm, ss, sign, tz_h, tz_m
     pattern = r"D:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?([+\-])(\d{2})'(\d{2})'?"
     match = re.search(pattern, pdf_date_str)
-    
+
     if not match:
         return "Invalid format"
 
-
     year, month, day, hour, minute, second, sign, tz_h, tz_m = match.groups()
-    
+
     sec = int(second) if second else 0
-    
+
     offset_mins = int(tz_h) * 60 + int(tz_m)
-    if sign == '-':
+    if sign == "-":
         offset_mins = -offset_mins
-        
+
     src_tz = timezone(timedelta(minutes=offset_mins))
-    
-    dt_utc_offset = datetime(int(year), int(month), int(day), 
-                             int(hour), int(minute), sec, tzinfo=src_tz)
+
+    dt_utc_offset = datetime(
+        int(year), int(month), int(day), int(hour), int(minute), sec, tzinfo=src_tz
+    )
     # Calling .astimezone(None) converts to the system's local timezone
     dt_local = dt_utc_offset.astimezone(None)
 
     return dt_local.strftime("%Y-%m-%d %H:%M:%S %Z")
 
 
-
 def show_metadata(input_path: Path):
-    validate_pdf(input_path)
+    validate(input_path)
 
     with pymupdf.open(input_path) as file:
         result = ""
         meta = file.metadata
         if not meta:
             raise ValueError("No metadata available for this file")
-        for key in meta.keys(): #type:ignore
-            value = meta.get(key) #type:ignore
+        for key in meta.keys():  # type: ignore
+            value = meta.get(key)  # type: ignore
             if not value:
                 value = ""
-            
+
             result += f"-[bold]{key.title()}[/bold]: {convert_pdf_to_local(value) if key.lower() in ("creationdate", "moddate") else value}\n"
     return result
 
@@ -99,6 +99,10 @@ def merge_pdfs(input_paths: List[Path], output_path: Path) -> None:
 
     if len(result) > 0:
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata = result.metadata
+        if metadata:
+            metadata["modDate"] = pymupdf.get_pdf_now()
+            result.set_metadata(metadata)
         result.save(output_path, garbage=4, deflate=True, clean=True)
 
     result.close()
@@ -138,12 +142,16 @@ def encrypt_pdf(
 
     with pymupdf.open(input_path) as doc:
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata = doc.metadata
+        if metadata:
+            metadata["modDate"] = pymupdf.get_pdf_now()
+            doc.set_metadata(metadata)
         doc.save(
             output_path,
-            encryption=pymupdf.PDF_ENCRYPT_AES_256, #type:ignore
+            encryption=pymupdf.PDF_ENCRYPT_AES_256,  # type: ignore
             user_pw=user_password,
             owner_pw=owner_password if owner_password else user_password,
-            permissions=pymupdf.PDF_PERM_ACCESSIBILITY, #type:ignore
+            permissions=pymupdf.PDF_PERM_ACCESSIBILITY,  # type: ignore
         )
 
 
@@ -163,6 +171,10 @@ def decrypt_pdf(input_path: Path, output_path: Path, password: str) -> int:
                 raise RuntimeError("Incorrect password!")
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata = doc.metadata
+        if metadata:
+            metadata["modDate"] = pymupdf.get_pdf_now()
+            doc.set_metadata(metadata)
         doc.save(output_path, garbage=4, deflate=True, clean=True)
 
         # Returns True if authenticated as user, False otherwise
@@ -180,14 +192,15 @@ def compress_pdf(
 
     with pymupdf.open(input_path) as doc:
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata = doc.metadata
+        if metadata:
+            metadata["modDate"] = pymupdf.get_pdf_now()
+            doc.set_metadata(metadata)
         doc.save(output_path, garbage=4, deflate=True, clean=True)
 
 
 def rotate_pdf(
-    input_path: Path,
-    output_path: Path,
-    angle: int = 90, 
-    pages: List[int] | None = None
+    input_path: Path, output_path: Path, angle: int = 90, pages: List[int] | None = None
 ):
     """
     Rotate a PDF file by an angle that is a multiple of 90
@@ -205,6 +218,10 @@ def rotate_pdf(
                 new_rotation = (doc[page - 1].rotation + angle) % 360
                 doc[page - 1].set_rotation(new_rotation)
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata = doc.metadata
+        if metadata:
+            metadata["modDate"] = pymupdf.get_pdf_now()
+            doc.set_metadata(metadata)
         doc.save(output_path, garbage=4, deflate=True, clean=True)
 
 
@@ -240,7 +257,7 @@ def pdf_to_image(input_path: Path, output_dir: Path, format: str = "png"):
 
     with pymupdf.open(input_path) as doc:
         if format != "gif":
-            for i, page in enumerate(doc): #type:ignore
+            for i, page in enumerate(doc):  # type: ignore
                 pix = page.get_pixmap()  # Render page to an image
                 pix.save(output_dir / f"{input_path.name}_page_{i}.{format}")
         else:

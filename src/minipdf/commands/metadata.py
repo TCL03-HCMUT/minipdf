@@ -37,4 +37,4 @@ def metadata(
         raise typer.Exit(code=1)
 
     console.print(
-        f"Metadata of [cyan]{input_file}[/cyan]:\n{meta}")
+        f"[bold]Metadata of [cyan]{input_file}[/cyan][/bold]:\n{meta}")
