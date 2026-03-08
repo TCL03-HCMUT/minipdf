@@ -1,4 +1,4 @@
-from minipdf.utils import image_to_pdf
+from minipdf.utils import office_to_pdf
 
 import typer
 from pathlib import Path
@@ -10,17 +10,19 @@ from typing import List
 console = Console()
 
 
-def img2pdf(
+def office2pdf(
     input_files: List[Path] = typer.Argument(
         ...,
-        help="List of image files to convert (in order)", exists=True, file_okay=True, dir_okay=False, metavar="FILES"
+        help="List of MS Office files to convert (in order)", exists=True, file_okay=True, dir_okay=False,
     ),
-    output_file: Path = typer.Option(
-        "images_merged.pdf", "--output", "-o", help="Filename of resulting PDF file", file_okay=True, dir_okay=False
+    output_dir: Path = typer.Option(
+        ".", "--output-dir", help="Filename of resulting PDF file", file_okay=False, dir_okay=True
     )
 ):
     """
-    Convert a list of images and merge into a PDF file (in order)
+    Convert a list of MS Office files into respective PDF files
+
+    Requires MS Office or LibreOffice to be installed on the system
     """
 
     error = None
@@ -31,10 +33,10 @@ def img2pdf(
         TextColumn("[progress.description]{task.description}"),
         transient=True,
     ) as progress:
-        progress.add_task(description="Converting images...", total=None)
+        progress.add_task(description="Converting files...", total=None)
 
         try:
-            image_to_pdf(input_files, output_file)
+            office_to_pdf(input_files, output_dir)
         except Exception as e:
             error = e
 
@@ -43,5 +45,5 @@ def img2pdf(
         raise typer.Exit(code=1)
 
     console.print(
-        f"[bold green]Success![/bold green] Converted [cyan]{num_files}[/cyan] images to [cyan]{output_file}[/cyan]"
+        f"[bold green]Success![/bold green] Converted [cyan]{num_files}[/cyan] files to PDF"
     )

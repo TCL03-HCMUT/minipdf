@@ -258,7 +258,7 @@ def pdf_to_image(input_path: Path, output_dir: Path, format: str = "png"):
     with pymupdf.open(input_path) as doc:
         if format != "gif":
             for i, page in enumerate(doc):  # type: ignore
-                pix = page.get_pixmap()  # Render page to an image
+                pix = page.get_pixmap()
                 pix.save(output_dir / f"{input_path.name}_page_{i}.{format}")
         else:
             images = []
@@ -301,3 +301,5 @@ def office_to_pdf(input_files: List[Path], output_dir: Path):
 
     for file in input_files:
         msoffice2pdf.convert(source=str(file.resolve()), output_dir=str(output_dir.resolve()))
+
+
