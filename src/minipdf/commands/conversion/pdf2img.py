@@ -21,7 +21,7 @@ def pdf2img(
     )
 ):
     """
-    Convert a PDF file to a list of images, one for each page
+    Convert a PDF file into a list of images, one for each page
 
     If the GIF format is used, one GIF file is proudced instead, with each page as one frame
     """

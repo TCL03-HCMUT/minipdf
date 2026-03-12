@@ -1,4 +1,4 @@
-import sys, pymupdf, io, msoffice2pdf, re
+import sys, pymupdf, pymupdf4llm, io, msoffice2pdf, re
 from pathlib import Path
 from typing import List, Optional
 from PIL import Image
@@ -303,3 +303,18 @@ def office_to_pdf(input_files: List[Path], output_dir: Path):
         msoffice2pdf.convert(source=str(file.resolve()), output_dir=str(output_dir.resolve()))
 
 
+def pdf_to_markdown(input_paths: List[Path], output_dir: Path):
+    """
+    Convert PDF files to Markdown files
+    """
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for path in input_paths:
+        if not validate_pdf(path):
+            print(f"Skipping invalid/encrypted file: {path}", file=sys.stderr)
+            continue
+
+        md_text = pymupdf4llm.to_markdown(path)
+
+        (output_dir / f"{path.stem}.md").write_bytes(md_text.encode())

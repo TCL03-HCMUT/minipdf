@@ -6,6 +6,7 @@ dependencies = [
     "rich",
     "cryptography>=3.1",
     "pymupdf",
+    "pymupdf4llm",
     "pillow",
     "pyhtml2pdf",
     "msoffice2pdf",

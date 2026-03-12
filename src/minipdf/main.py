@@ -1,7 +1,7 @@
 import typer
 from minipdf.commands.core import merge, split, extract, rotate
 from minipdf.commands.security import encrypt, decrypt
-from minipdf.commands.conversion import img2pdf, pdf2img, office2pdf
+from minipdf.commands.conversion import img2pdf, pdf2img, office2pdf, pdf2md
 from minipdf.commands.optimization import compress, metadata
 
 app = typer.Typer(help="A mini PDF CLI tool")
@@ -21,6 +21,7 @@ conversion_app = typer.Typer(help="PDF format conversions")
 conversion_app.command()(img2pdf)
 conversion_app.command()(pdf2img)
 conversion_app.command()(office2pdf)
+conversion_app.command()(pdf2md)
 
 optimization_app = typer.Typer(help="PDF optimization operations")
 optimization_app.command()(compress)
