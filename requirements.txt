@@ -1,5 +1,10 @@
 typer
+rich
 pypdf
 cryptography>=3.1
 pymupdf
+pymupdf4llm
 pyhtml2pdf
+pillow
+msoffice2pdf
+comtypes

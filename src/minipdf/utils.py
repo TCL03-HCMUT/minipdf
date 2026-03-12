@@ -1,8 +1,9 @@
-import sys, pymupdf, pymupdf4llm, io, msoffice2pdf, re
+import sys, pymupdf, pymupdf4llm, io, msoffice2pdf, re, logging
 from pathlib import Path
 from typing import List, Optional
 from PIL import Image
 from datetime import datetime, timezone, timedelta
+from pdf2docx import Converter
 
 
 def validate_pdf_no_encryption_check(file_path: Path) -> bool:
@@ -318,3 +319,25 @@ def pdf_to_markdown(input_paths: List[Path], output_dir: Path):
         md_text = pymupdf4llm.to_markdown(path)
 
         (output_dir / f"{path.stem}.md").write_bytes(md_text.encode())
+
+
+def pdf_to_docx(input_paths: List[Path], output_dir: Path):
+    """
+    Convert PDF files to Word files
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger = logging.getLogger()
+    original_level = logger.getEffectiveLevel()
+    logger.setLevel(logging.ERROR)
+
+    for path in input_paths:
+        if not validate_pdf(path):
+            print(f"Skipping invalid/encrypted file: {path}", file=sys.stderr)
+            continue
+    
+        cv = Converter(str(path))
+        cv.convert(str(output_dir / f"{path.stem}.docx"))
+        cv.close()
+    
+    logger.setLevel(original_level)
