@@ -27,10 +27,10 @@ optimization_app.command()(compress)
 optimization_app.command()(metadata)
 
 # Add command groups to main app
-app.add_typer(core_app, name="core", help="Basic PDF operations (merge, split, extract, rotate)")
-app.add_typer(security_app, name="secure", help="Encryption and decryption")
-app.add_typer(conversion_app, name="convert", help="Format conversions (images, Office documents)")
-app.add_typer(optimization_app, name="optimize", help="Optimization (compress, metadata)")
+app.add_typer(core_app, name="core", help="Basic PDF operations (merge, split, extract, rotate, etc.)")
+app.add_typer(security_app, name="secure", help="Encryption, decryption")
+app.add_typer(conversion_app, name="convert", help="Format conversions (images, MS Office documents, etc.)")
+app.add_typer(optimization_app, name="optimize", help="Optimization (compress, metadata, etc.)")
 
 if __name__ == "__main__":
     app()

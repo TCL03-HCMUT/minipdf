@@ -5,30 +5,39 @@ from pathlib import Path
 from typing import List
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
-
+from ..resolve import resolve_and_sort_files, SortChoice
 
 console = Console()
 
 
 def merge(
-    input_files: List[Path] = typer.Argument(
+    input_files: List[str] = typer.Argument(
         ...,
-        help="List of PDF files to merge (in order)", exists=True, file_okay=True, dir_okay=False, metavar="FILES"
+        help="List of PDF files to merge (in order)", metavar="FILES"
     ),
     output_file: Path = typer.Option(
         "merged.pdf", "--output", "-o", help="The filename for the resulting PDF", file_okay=True, dir_okay=False
+    ),
+    sort: SortChoice = typer.Option(
+        SortChoice.none, 
+        "--sort", 
+        "-s",
+        help="Sort the input files before converting"
     )
 ):
     """
     Merge multiple PDF files into a single document
     """
-    if len(input_files) < 2:
+    
+
+    resolved_files = resolve_and_sort_files(input_files, sort)
+
+    if len(resolved_files) < 2:
         console.print("[yellow]Warning:[/yellow] You need at least 2 files to merge.")
         raise typer.Exit()
 
     error = None
 
-    # Using 'Rich' to provide a professional CLI experience
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -37,7 +46,7 @@ def merge(
         progress.add_task(description="Merging PDFs...", total=None)
 
         try:
-            merge_pdfs(input_files, output_file)
+            merge_pdfs(resolved_files, output_file)
         except Exception as e:
             error = e
 

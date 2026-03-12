@@ -5,15 +5,16 @@ from pathlib import Path
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from typing import List
+from ..resolve import resolve_and_sort_files, SortChoice
 
 
 console = Console()
 
 
 def office2pdf(
-    input_files: List[Path] = typer.Argument(
+    input_files: List[str] = typer.Argument(
         ...,
-        help="List of MS Office files to convert (in order)", exists=True, file_okay=True, dir_okay=False,
+        help="List of MS Office files to convert (in order)", metavar="FILES"
     ),
     output_dir: Path = typer.Option(
         ".", "--output-dir", help="Filename of resulting PDF file", file_okay=False, dir_okay=True
@@ -25,8 +26,10 @@ def office2pdf(
     Requires MS Office or LibreOffice to be installed on the system
     """
 
+    resolved_files = resolve_and_sort_files(input_files, SortChoice.none)
+
     error = None
-    num_files = len(input_files)
+    num_files = len(resolved_files)
 
     with Progress(
         SpinnerColumn(),
@@ -34,9 +37,8 @@ def office2pdf(
         transient=True,
     ) as progress:
         progress.add_task(description="Converting files...", total=None)
-
         try:
-            office_to_pdf(input_files, output_dir)
+            office_to_pdf(resolved_files, output_dir)
         except Exception as e:
             error = e
 
